@@ -1,0 +1,109 @@
+{% extends 'parent.njk' %}
+
+{% block content %}
+
+    <div class="container">
+      
+      {% for clip in clips %} 
+      <div class="row">
+        <div class="col-2">
+          <div class="overlay-container">
+            <img src="{{clip.thumbnail_url}}" alt="{{clip.id}}" class="img-thumbnail img-responsive" onclick="openModal('{{clip.id}}')">
+            <div class="overlay-icon" id="{{clip.id}}" onclick="toggleIcon(this)"><i class="fa-solid fa-circle-plus"></i></div>
+          </div>
+        </div>
+
+        <div class="col-8">
+          <h5>{{clip.title}}</h5>
+          <p>{{clip.created_at}}<br>  
+          {{clip.creator_name}}<br>
+          {{clip.view_count}} views</p>          
+        </div>
+      </div>
+
+      <hr>
+      {% endfor %}
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal modal-lg fade" id="clipModal" tabindex="-1" aria-labelledby="clipModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="clipModalLabel">Twitch Clip</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="stopClip()"></button>
+          </div>
+          <div class="modal-body">
+            <iframe id="clipPlayer" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+          <style>
+            .overlay-container {
+              position: relative;
+              display: inline-block;
+            }
+            .overlay-icon {
+              position: absolute;
+              bottom: 5px;
+              right: 5px;
+              cursor: pointer;
+              font-size: 1.5em;
+              color: white;
+            }
+          </style>
+
+{% endblock %}
+
+{% block footer %}
+
+  <div id="statusBar" class="fixed-bottom bg-secondary text-white py-2 shadow-lg" style="font-size: 1.2em; padding-left: 1.2em; font-family: 'Roboto', sans-serif;">
+    Clips in queue: <span id="clipCount">0</span>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+  <script>
+
+    let clipCount = 0;
+
+    function toggleIcon(element) {  
+      const icon = element.querySelector('i');
+      if (icon.classList.contains('fa-circle-plus')) {
+        icon.classList.remove('fa-circle-plus');
+        icon.classList.add('fa-circle-check');
+        element.style.color = 'lime';
+        clipCount++;
+        console.log(element.id);
+      } else {
+        icon.classList.remove('fa-circle-check');
+        icon.classList.add('fa-circle-plus');
+        element.style.color = 'white';
+        clipCount--;
+      }
+      updateClipCount();
+    }
+
+    function updateClipCount() {
+      const clipCountElement = document.getElementById('clipCount');
+      clipCountElement.innerText = clipCount;
+    }
+
+    function stopClip() {
+      const clipPlayer = document.getElementById('clipPlayer');
+      clipPlayer.src = '';
+    }
+
+    function openModal(slug) {
+      const clipPlayer = document.getElementById('clipPlayer');
+      clipPlayer.src = `https://clips.twitch.tv/embed?clip=${slug}&parent=localhost&autoplay=false`;
+      const clipModal = new bootstrap.Modal(document.getElementById('clipModal'));
+      clipModal.show();
+    }
+
+  </script>
+{% endblock %}

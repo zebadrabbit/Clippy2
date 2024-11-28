@@ -1,0 +1,79 @@
+{% extends 'parent.njk' %}
+
+{% block content %}
+
+<div class="container">
+    
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Intro & Outro</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Fillers</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Twitch</button>
+  </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+  <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+
+  </div>
+  <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+    
+  </div>
+  <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
+    
+    <form action="/config" method="post">
+    <div class="row row-cols-1 row-cols-md-2 g-4" style="margin-top: 1.2em;">
+        
+        <div class="col">
+            <div class="card" style="width: 35rem;">
+                <div class="card-header">
+                    <h5 class="card-title">Twitch</h5>
+                </div>                        
+                <div class="card-body">
+                    <p class="card-text">Enter your details to get started.</p>            
+                    
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Twitch Username</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" value="{{username}}">
+                        </div>                                
+                </div>
+            </div>
+        </div>
+
+        <div class="col">            
+            <div class="card" style="width: 35rem;">
+                <div class="card-header">
+                    <h5 class="card-title">Twitch API Access</h5>
+                </div>                        
+                <div class="card-body">
+                    <p class="card-text">Do not share your details with anyone!</p>            
+                    
+                        <div class="mb-3">
+                            <label for="client_id" class="form-label">Client ID</label>
+                            <input type="text" class="form-control" id="client_id" name="client_id" placeholder="Client ID" value="{{client_id}}">
+                            <div class="form-text">Don't have a client ID? Get one <a href="https://dev.twitch.tv/console/apps/create" target="_blank">here</a>.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="client_secret" class="form-label">Client Secret (DO NOT SHARE)</label>
+                            <input type="password" class="form-control" id="client_secret" name="client_secret" placeholder="Client Secret" value="{{client_secret}}">
+                        </div>
+                    <div class="text-end"><button type="submit" class="btn btn-primary">Save</button></div>
+                </div>
+            </div>
+        </div>
+
+        
+
+    </div>
+    </form>
+  </div>
+  
+</div>
+
+</div>
+
+{% endblock %}

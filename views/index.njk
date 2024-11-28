@@ -1,0 +1,22 @@
+{% extends 'parent.njk' %}
+
+{% block content %}
+
+    <div class="container">
+        <h1>Clippy<sup>2</sup></h1>
+        <p>Clippy<sup>2</sup> grabs your clips from Twitch.tv and lets you organize them into clipshows!</p>
+    </div>
+
+    {% if message %}
+    <div role="alert" aria-live="assertive" aria-atomic="true" class="toast" data-bs-autohide="false">
+        <div class="toast-header">          
+          <strong class="me-auto">Configuration</strong>          
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          {{ message[0] }}
+        </div>
+      </div>    
+    {% endif %}
+
+{% endblock %}
