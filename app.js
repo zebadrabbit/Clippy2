@@ -6,6 +6,8 @@ var nunjucks = require('nunjucks');
 var dotenv = require('dotenv').config();
 var flash = require('express-flash')
 var session = require('express-session')
+var sqlite = require('./db');
+
 
 var app = express();
 

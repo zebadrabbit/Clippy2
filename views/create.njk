@@ -2,14 +2,14 @@
 
 {% block content %}
 
-    <div class="container">
+    <div class="container" style="padding-bottom: 5em; width: 80%;">
       
       {% for clip in clips %} 
-      <div class="row">
-        <div class="col-2">
+      <div class="row"> 
+        <div class="col-4">
           <div class="overlay-container">
-            <img src="{{clip.thumbnail_url}}" alt="{{clip.id}}" class="img-thumbnail img-responsive" onclick="openModal('{{clip.id}}')">
-            <div class="overlay-icon" id="{{clip.id}}" onclick="toggleIcon(this)"><i class="fa-solid fa-circle-plus"></i></div>
+            <img src="{{clip.thumbnail_url}}" alt="{{clip.id}}" class="img-thumbnail" onclick="openModal('{{clip.id}}')">
+            <div class="overlay-icon" id="{{clip.id}}" onclick="toggleIcon(this)"><i id="foo" class="fa-solid fa-circle-plus"></i></div>
           </div>
         </div>
 
@@ -19,10 +19,8 @@
           {{clip.creator_name}}<br>
           {{clip.view_count}} views</p>          
         </div>
-      </div>
-
-      <hr>
-      {% endfor %}
+      </div>      
+      {% endfor %}      
 
     </div>
 
@@ -41,27 +39,28 @@
       </div>
     </div>
 
-          <style>
-            .overlay-container {
-              position: relative;
-              display: inline-block;
-            }
-            .overlay-icon {
-              position: absolute;
-              bottom: 5px;
-              right: 5px;
-              cursor: pointer;
-              font-size: 1.5em;
-              color: white;
-            }
-          </style>
+    <style>
+      .overlay-container {
+        position: relative;
+        display: inline-block;
+      }
+      .overlay-icon {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        cursor: pointer;
+        font-size: 1.5em;
+        color: white;
+      }
+    </style>
 
 {% endblock %}
 
 {% block footer %}
 
-  <div id="statusBar" class="fixed-bottom bg-secondary text-white py-2 shadow-lg" style="font-size: 1.2em; padding-left: 1.2em; font-family: 'Roboto', sans-serif;">
+  <div id="statusBar" class="fixed-bottom bg-body text-white py-2 shadow-lg" style="font-size: 1.4em; padding-left: 1.2em; font-family: 'Roboto', sans-serif; border-top: 1px solid grey;">
     Clips in queue: <span id="clipCount">0</span>
+    <button id="create-btn" class="btn btn-success float-end me-3" disabled>Create Clipshow</button>
   </div>
 
 {% endblock %}
@@ -72,25 +71,67 @@
     let clipCount = 0;
 
     function toggleIcon(element) {  
+
+      const slug = element.id;
       const icon = element.querySelector('i');
+
       if (icon.classList.contains('fa-circle-plus')) {
-        icon.classList.remove('fa-circle-plus');
-        icon.classList.add('fa-circle-check');
-        element.style.color = 'lime';
-        clipCount++;
-        console.log(element.id);
+
+        fetch('/create/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ slug: slug })
+        })
+        .then((response) => {
+          console.log('Success:', response);
+          icon.classList.remove('fa-circle-plus');
+          icon.classList.add('fa-circle-check');
+          element.style.color = 'lime';
+          clipCount++;                
+          updateClipCount();
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+
       } else {
-        icon.classList.remove('fa-circle-check');
-        icon.classList.add('fa-circle-plus');
-        element.style.color = 'white';
-        clipCount--;
-      }
-      updateClipCount();
+
+        fetch('/create/remove', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ slug: slug })
+        })
+        .then((response) => {
+          console.log('Success:', response);
+          icon.classList.remove('fa-circle-check');
+          icon.classList.add('fa-circle-plus');
+          element.style.color = 'white';
+          clipCount--;
+          updateClipCount();
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+
+      } 
+
     }
 
     function updateClipCount() {
       const clipCountElement = document.getElementById('clipCount');
       clipCountElement.innerText = clipCount;
+      // if clipcount is 0 disable the create clipshow button
+      const createBtn = document.getElementById('create-btn');
+      if (clipCount > 0) {
+        createBtn.removeAttribute('disabled');
+      } else {
+        createBtn.setAttribute('disabled', 'true');
+      }
+
     }
 
     function stopClip() {
@@ -101,9 +142,14 @@
     function openModal(slug) {
       const clipPlayer = document.getElementById('clipPlayer');
       clipPlayer.src = `https://clips.twitch.tv/embed?clip=${slug}&parent=localhost&autoplay=false`;
-      const clipModal = new bootstrap.Modal(document.getElementById('clipModal'));
+      const clipModal = document.getElementById('clipModal');
       clipModal.show();
     }
+
+    const createBtn = document.getElementById('create-btn');
+    createBtn.addEventListener('click', () => {
+      window.location.href = '/create/build';
+    });
 
   </script>
 {% endblock %}

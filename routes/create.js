@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
+const sqlite = require('../db');
+const axios = require('axios');
+const dotenv = require('dotenv').config();
+
 
 router.get('/', function(req, res, next) {
 
     // get a list of clips from the twitch api using the broadcaster_id
     // url request format: https://api.twitch.tv/helix/clips?broadcaster_id=23045359
-    const axios = require('axios');
-    const dotenv = require('dotenv').config();
     const client_id = process.env.CLIENT_ID;
     const bearer_token = process.env.BEARER_TOKEN;
     const broadcaster_id = process.env.BROADCASTER_ID;
@@ -46,5 +48,61 @@ router.get('/', function(req, res, next) {
 
 
 });
+
+router.post('/', function(req, res, next) {
+    const cursor = req.body.cursor;
+    const client_id = process.env.CLIENT_ID;
+    const bearer_token = process.env.BEARER_TOKEN;
+    const broadcaster_id = process.env.BROADCASTER_ID;
+
+    const url = `https://api.twitch.tv/helix/clips?` +
+                `broadcaster_id=${broadcaster_id}&` +
+                `first=10&` +
+                `after=${cursor}`;
+
+    axios.get(url, {
+        headers: {
+            'Client-ID': client_id,
+            'Authorization': `Bearer ${bearer_token}`
+        }
+    })
+    .then(response => {
+        const clips = response.data.data;
+        const cursor = response.data.pagination.cursor;
+        res.render('create.njk', { clips, cursor });
+    })
+    .catch(err => {
+        res.status(500).send('Internal Server Error');
+        console.error(err);
+    });
+});
+
+router.post('/add', function(req, res) {
+    const slug = req.body.slug; 
+    sqlite.addClip(slug);
+    res.sendStatus(200);
+});
+
+router.post('/remove', function(req, res) {
+    const slug = req.body.slug;
+    sqlite.removeClip(slug);
+    res.sendStatus(200);
+});
+
+router.get('/build', function(req, res) {
+
+    // get in the queue, if they dont exist then redirect to the create page
+    sqlite.getClips((clips) => {
+        if (clips.length == 0) {
+            res.redirect('/create');
+        } else {
+            
+
+
+        }
+    });
+
+    res.render('build.njk');
+}); 
 
 module.exports = router;
